@@ -112,14 +112,53 @@ function memDb() {
   };
 }
 
+/**
+ * Strips `psql '...'`, surrounding quotes, and unsupported query params
+ * so any pasted Neon snippet works automatically.
+ */
+export function cleanDatabaseUrl(raw?: string | null): string | null {
+  if (!raw) return null;
+  const match = raw.match(/postgres(?:ql)?:\/\/[^\s'"]+/i);
+  if (!match) return null;
+  return match[0].replace(/([?&])channel_binding=require(&?)/i, (_, p1, p2) => (p2 ? p1 : ""));
+}
+
 let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
+let _schemaReady: Promise<void> | null = null;
+
+export async function ensureSchema(): Promise<void> {
+  const url = cleanDatabaseUrl(process.env.DATABASE_URL);
+  if (!url) return;
+  if (!_schemaReady) {
+    _schemaReady = (async () => {
+      try {
+        const sql = neon(url);
+        await sql`CREATE TABLE IF NOT EXISTS "projects" ("id" text PRIMARY KEY NOT NULL, "code" text NOT NULL UNIQUE, "title" text NOT NULL, "phase" text DEFAULT 'setup' NOT NULL, "is_demo" boolean DEFAULT false NOT NULL, "created_at" timestamp DEFAULT now() NOT NULL)`;
+        await sql`CREATE TABLE IF NOT EXISTS "members" ("id" text PRIMARY KEY NOT NULL, "project_id" text NOT NULL REFERENCES "projects"("id") ON DELETE cascade, "name" text NOT NULL, "role" text DEFAULT 'member' NOT NULL, "token" text NOT NULL UNIQUE, "agreed_at" timestamp, "submitted_at" timestamp)`;
+        await sql`CREATE TABLE IF NOT EXISTS "commitments" ("id" text PRIMARY KEY NOT NULL, "project_id" text NOT NULL REFERENCES "projects"("id") ON DELETE cascade, "owner_id" text NOT NULL REFERENCES "members"("id") ON DELETE cascade, "title" text NOT NULL, "weight" integer DEFAULT 1 NOT NULL, "fulfilled_at" timestamp)`;
+        await sql`CREATE TABLE IF NOT EXISTS "evidence" ("id" text PRIMARY KEY NOT NULL, "commitment_id" text NOT NULL REFERENCES "commitments"("id") ON DELETE cascade, "author_id" text NOT NULL REFERENCES "members"("id") ON DELETE cascade, "note" text NOT NULL, "url" text DEFAULT '' NOT NULL, "created_at" timestamp DEFAULT now() NOT NULL)`;
+        await sql`CREATE TABLE IF NOT EXISTS "reviews" ("id" text PRIMARY KEY NOT NULL, "project_id" text NOT NULL REFERENCES "projects"("id") ON DELETE cascade, "reviewer_id" text NOT NULL REFERENCES "members"("id") ON DELETE cascade, "reviewee_id" text NOT NULL REFERENCES "members"("id") ON DELETE cascade, "rating" integer NOT NULL, "comment" text DEFAULT '' NOT NULL)`;
+        await sql`CREATE TABLE IF NOT EXISTS "decisions" ("id" text PRIMARY KEY NOT NULL, "project_id" text NOT NULL REFERENCES "projects"("id") ON DELETE cascade, "member_id" text NOT NULL REFERENCES "members"("id") ON DELETE cascade, "suggested" real NOT NULL, "final" real NOT NULL, "reason" text DEFAULT '' NOT NULL)`;
+      } catch {
+        // Fallback to memDb if Neon connection fails
+        _db = memDb() as unknown as ReturnType<typeof drizzle<typeof schema>>;
+      }
+    })();
+  }
+  await _schemaReady;
+}
+
 export function db(): ReturnType<typeof drizzle<typeof schema>> {
-  const url = process.env.DATABASE_URL;
+  const url = cleanDatabaseUrl(process.env.DATABASE_URL);
   if (!url) {
     return memDb() as unknown as ReturnType<typeof drizzle<typeof schema>>;
   }
   if (!_db) {
-    _db = drizzle(neon(url), { schema });
+    try {
+      _db = drizzle(neon(url), { schema });
+    } catch {
+      _db = memDb() as unknown as ReturnType<typeof drizzle<typeof schema>>;
+    }
   }
   return _db;
 }

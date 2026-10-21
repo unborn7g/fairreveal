@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { db, s } from "../db";
+import { db, ensureSchema, s } from "../db";
 import { uid, token, code } from "./server";
 
 // Demo seeding: every sandbox is a fresh project in a known state (plan §3).
@@ -13,6 +13,7 @@ const GOLDEN_COMMITMENTS: [number, string, number, boolean][] = [
 const GRID: Record<number, number[]> = { 0: [4, 3, 5, 2], 1: [4, 4, 4, 2], 2: [4, 3, 5, 1], 3: [4, 5, 4, 5] };
 
 export async function createDemo(mode: "scratch" | "evidence" | "reveal") {
+  await ensureSchema();
   const d = db();
   const pid = uid(), pcode = code();
   await d.insert(s.projects).values({ id: pid, code: pcode, title: "Demo Team — Product Launch", phase: "setup", isDemo: true });

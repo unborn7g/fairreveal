@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db, s } from "@/db";
+import { db, ensureSchema, s } from "@/db";
 import { uid, token, code } from "@/lib/server";
 import { validateProject } from "@/lib/rules";
 
 export async function POST(req: NextRequest) {
+  await ensureSchema();
   const body = await req.json().catch(() => ({}));
   const title = String(body.title ?? "").trim();
   const names = (body.memberNames ?? []).map((x: unknown) => String(x).trim()).filter(Boolean) as string[];
