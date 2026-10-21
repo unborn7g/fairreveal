@@ -20,8 +20,19 @@ export async function getSeat(tok: string | undefined | null) {
 export async function projectState(projectId: string, viewerId: string | null) {
   const d = db();
   const [project] = await d.select().from(s.projects).where(eq(s.projects.id, projectId));
-  const mems = await d.select().from(s.members).where(eq(s.members.projectId, projectId));
-  const comms = await d.select().from(s.commitments).where(eq(s.commitments.projectId, projectId));
+  const rawMems = await d.select().from(s.members).where(eq(s.members.projectId, projectId));
+  const mems = [...rawMems].sort((a, b) => {
+    if (a.role === "instructor" && b.role !== "instructor") return -1;
+    if (b.role === "instructor" && a.role !== "instructor") return 1;
+    return a.name.localeCompare(b.name);
+  });
+  const rawComms = await d.select().from(s.commitments).where(eq(s.commitments.projectId, projectId));
+  const comms = [...rawComms].sort((a, b) => {
+    const oa = mems.findIndex((m) => m.id === a.ownerId);
+    const ob = mems.findIndex((m) => m.id === b.ownerId);
+    if (oa !== ob) return oa - ob;
+    return b.weight - a.weight;
+  });
   const evs = comms.length ? await d.select().from(s.evidence) : [];
   const myEvs = evs.filter((e) => comms.some((c) => c.id === e.commitmentId));
   const unlocked = project.phase === "unlocked" || project.phase === "approved";

@@ -73,6 +73,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cod
     } else if (action === "openReviews") {
       if (!isInstructor) return fail("Only the instructor can open the review round (R7).", 403); // R7
       if (project.phase !== "active") return fail("Reviews open from Active only (R7).");
+      if (project.isDemo) {
+        const comms = await d.select().from(s.commitments).where(eq(s.commitments.projectId, project.id));
+        const interviewComm = comms.find((x) => x.title === "Interview notes" && !x.fulfilledAt);
+        if (interviewComm) {
+          await d.update(s.commitments).set({ fulfilledAt: new Date() }).where(eq(s.commitments.id, interviewComm.id));
+        }
+      }
       await d.update(s.projects).set({ phase: "reviewing" }).where(eq(s.projects.id, project.id));
     } else if (action === "submitReview") {
       if (project.phase !== "reviewing") return fail("The review round is not open.");

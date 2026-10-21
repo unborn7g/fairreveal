@@ -41,9 +41,12 @@ export default function ProjectPage() {
       }
     } catch {}
     setCopiedKey(key);
+    if (key === "ALL_SEATS") {
+      setMsg("✓ All private seat links copied to clipboard!");
+    }
     setTimeout(() => {
       setCopiedKey((prev) => (prev === key ? null : prev));
-    }, 2200);
+    }, 30000);
   }
 
   const seatHeader = (): Record<string, string> => {
@@ -283,6 +286,20 @@ export default function ProjectPage() {
               </button>
             )}
           </div>
+          {copiedKey === "ALL_SEATS" && (
+            <p
+              role="status"
+              data-testid="bulk-copy-status"
+              className="mt-2.5 rounded-xl px-3.5 py-2 text-xs font-semibold"
+              style={{
+                background: "rgba(52, 211, 153, 0.16)",
+                color: "#34d399",
+                border: "1px solid rgba(52, 211, 153, 0.4)",
+              }}
+            >
+              ✓ All private seat links copied to clipboard! Ready to paste into WhatsApp, Slack, or Discord.
+            </p>
+          )}
 
           <div className="mt-3 space-y-2">
             {st.members
@@ -520,7 +537,7 @@ export default function ProjectPage() {
                       ))}
                     </ul>
                   )}
-                  {p.phase === "active" && c.ownerId === v?.id && !c.fulfilled && <EvidenceForm c={c} act={act} />}
+                  {p.phase === "active" && c.ownerId === v?.id && <EvidenceForm c={c} act={act} />}
                 </li>
               );
             })}
@@ -881,12 +898,14 @@ function EvidenceForm({ c, act }: { c: any; act: (b: object) => Promise<void> })
   );
 }
 
+const GOLDEN_BY_NAME: Record<string, number> = { Amara: 4, Bayo: 5, Chen: 4, Dana: 5 };
+
 function ReviewForm({ st, act }: { st: State; act: (b: object) => Promise<void> }) {
   const [ratings, setRatings] = useState<Record<string, number>>(() => {
     const preset = [4, 5, 4, 5]; // Golden Dana ratings: Amara=4, Bayo=5, Chen=4, Dana=5
     const next: Record<string, number> = {};
     (st.members ?? []).forEach((m: any, i: number) => {
-      next[m.id] = preset[i] ?? 4;
+      next[m.id] = GOLDEN_BY_NAME[m.name] ?? preset[i] ?? 4;
     });
     return next;
   });
@@ -896,7 +915,7 @@ function ReviewForm({ st, act }: { st: State; act: (b: object) => Promise<void> 
     const preset = [4, 5, 4, 5]; // Golden Dana ratings: Amara=4, Bayo=5, Chen=4, Dana=5
     const next: Record<string, number> = {};
     st.members.forEach((m: any, i: number) => {
-      next[m.id] = preset[i] ?? 4;
+      next[m.id] = GOLDEN_BY_NAME[m.name] ?? preset[i] ?? 4;
     });
     setRatings(next);
   }
@@ -910,7 +929,7 @@ function ReviewForm({ st, act }: { st: State; act: (b: object) => Promise<void> 
         act({
           action: "submitReview",
           ratings: st.members.map((m: any, idx: number) => {
-            const rVal = ratings[m.id] ?? preset[idx] ?? 4;
+            const rVal = ratings[m.id] ?? GOLDEN_BY_NAME[m.name] ?? preset[idx] ?? 4;
             const rawComment = (comments[m.id] ?? "").trim();
             const safeComment =
               rVal <= 2 && rawComment.length < 10
@@ -943,7 +962,7 @@ function ReviewForm({ st, act }: { st: State; act: (b: object) => Promise<void> 
         )}
       </div>
 
-      {st.members.map((m: any) => (
+      {st.members.map((m: any, idx: number) => (
         <div key={m.id} className="fr-card p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <label className="flex items-center gap-3 text-sm font-semibold">
@@ -952,8 +971,10 @@ function ReviewForm({ st, act }: { st: State; act: (b: object) => Promise<void> 
                 {m.id === st.viewer?.id ? " (you)" : ""}
               </span>
               <select
-                value={ratings[m.id] ?? ""}
-                onChange={(e) => setRatings({ ...ratings, [m.id]: Number(e.target.value) })}
+                value={ratings[m.id] ?? GOLDEN_BY_NAME[m.name] ?? [4, 5, 4, 5][idx] ?? 4}
+                onChange={(e) =>
+                  setRatings((prev) => ({ ...prev, [m.id]: Number(e.target.value) }))
+                }
                 className="fr-input"
                 required
               >
