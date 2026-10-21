@@ -9,8 +9,12 @@ import { validateCommitment, validateEvidence, validateReview, validateOverride,
 async function ctx(req: NextRequest, code_: string) {
   const project = await getProject(code_);
   if (!project) return { err: NextResponse.json({ error: "Project not found" }, { status: 404 }) };
-  const seatTok = (await cookies()).get("fr_seat")?.value || req.headers.get("x-fr-seat") || undefined;
-  const seat = await getSeat(seatTok);
+  const hdrTok = req.headers.get("x-fr-seat") || undefined;
+  const cookieTok = (await cookies()).get("fr_seat")?.value || undefined;
+  let seat = await getSeat(hdrTok);
+  if (!seat || seat.projectId !== project.id) {
+    seat = await getSeat(cookieTok);
+  }
   if (!seat || seat.projectId !== project.id) return { err: NextResponse.json({ error: "No seat" }, { status: 404 }) }; // R18
   return { project, seat };
 }

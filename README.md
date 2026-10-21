@@ -2,8 +2,9 @@
 
 FairReveal turns a group agreement into an evidence-backed contribution record — then unlocks sealed peer reviews **only after everyone has submitted**. Nobody (not even the instructor) sees a single rating until the final ballot lands.
 
-- **Live App:** `https://fairreveal.vercel.app` *(update with final Vercel URL if different)*
-- **3-Click Golden Demo:** Open `/` → click **`▶ Watch the reveal`** → click **`Switch to Dana & submit the final review →`** → click **`⚡ Auto-fill demo ratings in 1 click`** → click **`Submit my sealed review`** → watch the sealed report unlock with exact golden math.
+- **Live Production App:** [https://fairreveal.vercel.app](https://fairreveal.vercel.app)
+- **Public Repository:** [https://github.com/unborn7g/fairreveal](https://github.com/unborn7g/fairreveal)
+- **3-Click Golden Demo:** Open [`https://fairreveal.vercel.app`](https://fairreveal.vercel.app) → click **`▶ Watch the reveal`** → click **`Switch to Dana & submit the final review →`** → click **`⚡ Auto-fill demo ratings in 1 click`** → click **`Submit my sealed review`** → watch the sealed report unlock with exact golden math (`92.0 / 74.3 / 94.7 / 13.3`, team mean `68.58`).
 
 ---
 

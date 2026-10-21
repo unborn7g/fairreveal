@@ -12,7 +12,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
   if (!p) return new NextResponse("Project not found", { status: 404 });
   const res = new NextResponse(null, {
     status: 303,
-    headers: { Location: `/p/${p.code}` },
+    headers: { Location: `/p/${p.code}?seat=${token}` },
   });
   res.cookies.set("fr_seat", token, {
     httpOnly: true,
