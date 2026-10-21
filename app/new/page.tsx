@@ -44,7 +44,7 @@ export default function NewProject() {
     setCopiedKey(key);
     setTimeout(() => {
       setCopiedKey((prev) => (prev === key ? null : prev));
-    }, 2200);
+    }, 30000);
   }
 
   async function create(e: React.FormEvent) {
@@ -108,6 +108,20 @@ export default function NewProject() {
           <p className="mt-2 text-dim">
             Click <strong>Copy Link</strong> next to each person to send them their private seat link, or copy all links at once.
           </p>
+          {copiedKey === "ALL" && (
+            <p
+              role="status"
+              data-testid="bulk-copy-status"
+              className="mt-3 rounded-xl px-3.5 py-2 text-xs font-semibold"
+              style={{
+                background: "rgba(52, 211, 153, 0.16)",
+                color: "#34d399",
+                border: "1px solid rgba(52, 211, 153, 0.4)",
+              }}
+            >
+              ✓ All private seat links copied to clipboard! Ready to paste into WhatsApp, Slack, or Discord.
+            </p>
+          )}
 
           <ul className="mt-6 space-y-3">
             {seats.map((x, idx) => {

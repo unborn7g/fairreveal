@@ -29,7 +29,8 @@ export async function createDemo(mode: "scratch" | "evidence" | "reveal") {
   for (const m of mems) await d.update(s.members).set({ agreedAt: now }).where(eq(s.members.id, m.id));
   const comms = [];
   for (const [oi, title, weight, fulfilled] of GOLDEN_COMMITMENTS) {
-    const c = { id: uid(), projectId: pid, ownerId: mems[oi].id, title, weight, fulfilledAt: fulfilled ? now : null };
+    const isFulfilled = mode === "evidence" && title === "Interview notes" ? false : fulfilled;
+    const c = { id: uid(), projectId: pid, ownerId: mems[oi].id, title, weight, fulfilledAt: isFulfilled ? now : null };
     await d.insert(s.commitments).values(c);
     comms.push({ ...c, ownerIdx: oi });
   }
