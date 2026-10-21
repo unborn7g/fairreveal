@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
-import { db, s } from "@/db";
+import { db, s } from "../db";
 import { computeReport } from "./rules";
 
 export const uid = () => randomUUID();
@@ -43,7 +43,7 @@ export async function projectState(projectId: string, viewerId: string | null) {
   return {
     project: { code: project.code, title: project.title, phase: project.phase, isDemo: project.isDemo },
     viewer: viewer ? { id: viewer.id, name: viewer.name, role: viewer.role, agreed: !!viewer.agreedAt, submitted: !!viewer.submittedAt } : null,
-    members: mems.map((m) => ({ id: m.id, name: m.name, role: m.role, agreed: !!m.agreedAt, submitted: !!m.submittedAt, seatPath: isInstructor || m.id === viewerId ? `/s/${m.token}` : undefined })),
+    members: mems.map((m) => ({ id: m.id, name: m.name, role: m.role, agreed: !!m.agreedAt, submitted: !!m.submittedAt, seatPath: project.isDemo || isInstructor || m.id === viewerId ? `/s/${m.token}` : undefined })),
     commitments: comms.map((c) => ({ id: c.id, ownerId: c.ownerId, title: c.title, weight: c.weight, fulfilled: !!c.fulfilledAt, evidence: myEvs.filter((e) => e.commitmentId === c.id).map((e) => ({ id: e.id, authorId: e.authorId, note: e.note, url: e.url })) })),
     submittedCount: mems.filter((m) => m.submittedAt).length,
     memberCount: mems.length,

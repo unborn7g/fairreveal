@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { db, s } from "@/db";
+import { db, s } from "../db";
 import { uid, token, code } from "./server";
 
 // Demo seeding: every sandbox is a fresh project in a known state (plan §3).

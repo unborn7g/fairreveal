@@ -6,25 +6,25 @@ import { getProject, getSeat, projectState, uid } from "@/lib/server";
 import { validateCommitment, validateEvidence, validateReview, validateOverride, computeReport } from "@/lib/rules";
 
 
-async function ctx(code_: string) {
+async function ctx(req: NextRequest, code_: string) {
   const project = await getProject(code_);
   if (!project) return { err: NextResponse.json({ error: "Project not found" }, { status: 404 }) };
-  const seatTok = (await cookies()).get("fr_seat")?.value;
+  const seatTok = (await cookies()).get("fr_seat")?.value || req.headers.get("x-fr-seat") || undefined;
   const seat = await getSeat(seatTok);
   if (!seat || seat.projectId !== project.id) return { err: NextResponse.json({ error: "No seat" }, { status: 404 }) }; // R18
   return { project, seat };
 }
 
-export async function GET(_: NextRequest, { params }: { params: Promise<{ code: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   const { code: code_ } = await params;
-  const c = await ctx(code_);
+  const c = await ctx(req, code_);
   if ("err" in c) return c.err;
   return NextResponse.json(await projectState(c.project.id, c.seat.id));
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   const { code: code_ } = await params;
-  const c = await ctx(code_);
+  const c = await ctx(req, code_);
   if ("err" in c) return c.err;
   const { project, seat } = c;
   const d = db();

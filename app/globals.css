@@ -1,26 +1,409 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================================
+   FairReveal Dashboard — GenLayer Dashboard Architecture × iOS 26 Liquid Glass
+   Dark-mode default with rich color/gradient play + Light mode via Sun/Moon knob
+   Bigger 64px top bar · Left dashboard sidebar · Image-3 orb pill · PIN lock
+   ============================================================================ */
+
+:root,
+[data-theme="dark"] {
+  --background: #07090f;
+  --shell-bg: #0b0e17;
+  --foreground: #f5f7fb;
+  --ink-2: #d5d9e6;
+  --muted: #949bb0;
+  --muted-2: #687086;
+  --panel: rgba(18, 22, 34, 0.78);
+  --panel-solid: #121622;
+  --panel-2: rgba(25, 30, 45, 0.90);
+  --panel-3: rgba(34, 40, 58, 0.78);
+  --glass: rgba(255, 255, 255, 0.06);
+  --glass-2: rgba(255, 255, 255, 0.10);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-hi: rgba(255, 255, 255, 0.26);
+  --nav-bg: rgba(11, 14, 23, 0.82);
+  --hairline: rgba(255, 255, 255, 0.09);
+  --hairline-strong: rgba(255, 255, 255, 0.16);
+  --accent: #14b8a6;
+  --accent-hover: #2dd4bf;
+  --accent-ink: #03221f;
+  --accent-soft: rgba(20, 184, 166, 0.15);
+  --accent-glow: rgba(20, 184, 166, 0.36);
+  --clay: #f08c65;
+  --clay-soft: rgba(240, 140, 101, 0.16);
+  --sage: #34d399;
+  --gold: #fbbf24;
+  --dot-grid: rgba(255, 255, 255, 0.05);
+  --shadow-card: 0 20px 46px -18px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.11);
+  --shadow-float: 0 28px 60px -14px rgba(0, 0, 0, 0.85), 0 0 34px -8px rgba(20, 184, 166, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
+}
+
+[data-theme="light"] {
+  --background: #f5f7fb;
+  --shell-bg: #ffffff;
+  --foreground: #0f121a;
+  --ink-2: #323644;
+  --muted: #5e6478;
+  --muted-2: #878ea2;
+  --panel: rgba(255, 255, 255, 0.86);
+  --panel-solid: #ffffff;
+  --panel-2: #eef1f8;
+  --panel-3: #e3e8f2;
+  --glass: rgba(255, 255, 255, 0.68);
+  --glass-2: rgba(255, 255, 255, 0.90);
+  --glass-border: rgba(255, 255, 255, 0.94);
+  --glass-hi: rgba(255, 255, 255, 0.98);
+  --nav-bg: rgba(255, 255, 255, 0.82);
+  --hairline: rgba(15, 23, 42, 0.08);
+  --hairline-strong: rgba(15, 23, 42, 0.15);
+  --accent: #0d9488;
+  --accent-hover: #0f766e;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(13, 148, 136, 0.11);
+  --accent-glow: rgba(13, 148, 136, 0.26);
+  --clay: #d96b43;
+  --clay-soft: rgba(217, 107, 67, 0.12);
+  --sage: #10b981;
+  --gold: #d97706;
+  --dot-grid: rgba(15, 23, 42, 0.045);
+  --shadow-card: 0 12px 32px -12px rgba(15, 23, 42, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --shadow-float: 0 22px 48px -14px rgba(15, 23, 42, 0.15), 0 0 26px -8px rgba(13, 148, 136, 0.20), inset 0 1px 0 #ffffff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image:
+    radial-gradient(640px 380px at 78% 8%, rgba(20, 184, 166, 0.11), transparent 70%),
+    radial-gradient(580px 360px at 18% 14%, rgba(129, 140, 248, 0.10), transparent 70%),
+    radial-gradient(var(--dot-grid) 1px, transparent 1px);
+  background-size: auto, auto, 22px 22px;
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 16.5px;
+  line-height: 1.48;
+  letter-spacing: -0.018em;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+/* ============================================================================
+   Image-3 Style Identity / Seat Badge Pill (Pink-Magenta Orb + Dark Glass Pill)
+   ============================================================================ */
+.fr-orb-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 14px 6px 9px;
+  border-radius: 12px;
+  background: rgba(42, 36, 42, 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 6px 18px -6px rgba(0, 0, 0, 0.45);
+  color: #f8fafc;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.fr-pink-orb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff7eb3 0%, #ff2a85 50%, #a855f7 100%);
+  box-shadow: 0 0 10px rgba(255, 42, 133, 0.55);
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+   58×32px Sun/Moon Sliding Knob Theme Toggle
+   ============================================================================ */
+.fr-theme-switch {
+  position: relative;
+  width: 58px;
+  height: 32px;
+  border-radius: 980px;
+  background: var(--glass-2);
+  border: 1px solid var(--hairline-strong);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.22), inset 0 1px 0 var(--glass-hi);
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7px;
+  cursor: pointer;
+}
+.fr-theme-switch .fr-icon-sun,
+.fr-theme-switch .fr-icon-moon {
+  font-size: 13px;
+  line-height: 1;
+  z-index: 1;
+  user-select: none;
+}
+.fr-theme-switch .fr-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), inset 0 1px 0 #ffffff;
+  transition: transform 0.32s var(--spring);
+}
+html:not([data-theme="light"]) .fr-theme-switch .fr-knob {
+  transform: translateX(26px);
+}
+html[data-theme="light"] .fr-theme-switch .fr-knob {
+  transform: translateX(0px);
+}
+
+/* ============================================================================
+   Obsidian Command Hero Banner + Luminous Rainbow Spectrum Bar
+   ============================================================================ */
+.fr-obsidian-banner {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  background:
+    radial-gradient(650px 260px at 85% 95%, rgba(249, 115, 22, 0.22), transparent 70%),
+    radial-gradient(550px 240px at 50% 100%, rgba(52, 211, 153, 0.18), transparent 70%),
+    radial-gradient(520px 260px at 12% 95%, rgba(129, 140, 248, 0.22), transparent 70%),
+    linear-gradient(180deg, #0b0d14 0%, #06070b 100%);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 24px 52px -18px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.fr-spectrum-track {
+  position: relative;
+  height: 12px;
+  width: 100%;
+  border-radius: 980px;
+  background: rgba(255, 255, 255, 0.10);
+  padding: 2px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.fr-spectrum-fill {
+  height: 100%;
+  border-radius: 980px;
+  background: linear-gradient(90deg, #818cf8 0%, #60a5fa 28%, #34d399 58%, #fbbf24 82%, #f97316 100%);
+  box-shadow: 0 0 22px rgba(52, 211, 153, 0.45), 0 0 40px rgba(249, 115, 22, 0.28);
+  transition: width 0.65s cubic-bezier(.22, 1, .36, 1);
+}
+
+.fr-spectrum-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #090a10;
+  border: 3px solid #f8fafc;
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.34), 0 4px 12px rgba(0, 0, 0, 0.6);
+  transition: left 0.65s cubic-bezier(.22, 1, .36, 1);
+}
+
+.fr-digit-box {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 54px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+/* ============================================================================
+   Glass Bento Cards & Color-Play Gradient Washes
+   ============================================================================ */
+.fr-card {
+  position: relative;
+  background: var(--panel);
+  backdrop-filter: blur(26px) saturate(190%);
+  -webkit-backdrop-filter: blur(26px) saturate(190%);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.26s var(--spring), box-shadow 0.26s var(--ease), border-color 0.22s var(--ease);
+}
+
+.fr-card-interactive {
+  overflow: hidden;
+}
+.fr-card-interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-float);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--hairline));
+}
+
+.fr-wash-amber {
+  background-image: radial-gradient(280px 180px at 18% 50%, rgba(251, 146, 60, 0.18), transparent 75%);
+}
+.fr-wash-blue {
+  background-image: radial-gradient(280px 180px at 18% 50%, rgba(56, 189, 248, 0.16), transparent 75%);
+}
+.fr-wash-violet {
+  background-image: radial-gradient(280px 180px at 18% 50%, rgba(167, 139, 250, 0.18), transparent 75%);
+}
+.fr-wash-holo {
+  background-image: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0) 10%,
+    rgba(56, 189, 248, 0.15) 38%,
+    rgba(168, 85, 247, 0.16) 62%,
+    rgba(251, 146, 60, 0.16) 84%,
+    rgba(52, 211, 153, 0.15) 100%
+  );
+}
+
+/* Tall Editorial Poster Cards */
+.fr-poster {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  min-height: 295px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 18px 38px -14px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transition: transform 0.28s var(--spring), box-shadow 0.28s var(--ease);
+}
+.fr-poster:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 26px 50px -12px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* ============================================================================
+   iOS 26 Specular Liquid-Glass Buttons
+   ============================================================================ */
+.fr-btn {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 82%, #ffffff 18%) 0%,
+    var(--accent) 100%
+  );
+  color: var(--accent-ink);
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, #ffffff 40%);
+  border-radius: 980px;
+  padding: 11px 22px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  letter-spacing: -0.015em;
+  cursor: pointer;
+  backdrop-filter: blur(22px) saturate(200%);
+  -webkit-backdrop-filter: blur(22px) saturate(200%);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.20),
+    0 10px 24px -8px var(--accent-glow);
+  transition: transform 0.22s var(--spring), box-shadow 0.22s var(--ease), filter 0.2s var(--ease);
+}
+.fr-btn:hover {
+  transform: translateY(-1.5px) scale(1.01);
+  filter: brightness(1.06);
+}
+.fr-btn:active {
+  transform: scale(0.975);
+}
+.fr-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+  transform: none;
+}
+
+.fr-btn.liquid-white {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(226, 232, 240, 0.92) 100%);
+  color: #090a10;
+  border: 1px solid #ffffff;
+  box-shadow:
+    inset 0 1.5px 0 #ffffff,
+    inset 0 -1.5px 2px rgba(15, 23, 42, 0.14),
+    0 12px 28px -6px rgba(255, 255, 255, 0.28);
+}
+
+.fr-btn.ghost {
+  background: var(--glass-2);
+  color: var(--foreground);
+  border: 1px solid var(--hairline-strong);
+  box-shadow: inset 0 1px 0 var(--glass-hi);
+}
+
+.fr-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 980px;
+  padding: 5px 12px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  background: var(--glass-2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--hairline-strong);
+  box-shadow: inset 0 1px 0 var(--glass-hi);
+  color: var(--ink-2);
+}
+
+.fr-input {
+  background: var(--panel-2);
+  color: var(--foreground);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 0.94rem;
+}
+.fr-input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.text-dim { color: var(--muted); }
+.text-ink2 { color: var(--ink-2); }
+
+@keyframes fr-rise {
+  from { opacity: 0; transform: translateY(14px) scale(0.99); filter: blur(5px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+.fr-reveal-row { animation: fr-rise 0.55s var(--ease) both; }
+.fr-reveal-row:nth-child(2) { animation-delay: 0.08s; }
+.fr-reveal-row:nth-child(3) { animation-delay: 0.16s; }
+.fr-reveal-row:nth-child(4) { animation-delay: 0.24s; }
+.fr-reveal-row:nth-child(5) { animation-delay: 0.32s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }
